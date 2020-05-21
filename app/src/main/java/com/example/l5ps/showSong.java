@@ -6,8 +6,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import java.util.ArrayList;
 
@@ -16,6 +18,7 @@ public class showSong extends AppCompatActivity {
     listAdapter adapter;
     ArrayList<Song> al;
     Button btnFilter;
+    Spinner spinner;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,6 +26,7 @@ public class showSong extends AppCompatActivity {
 
         lv = (ListView) this.findViewById(R.id.lv);
         btnFilter = findViewById(R.id.btnFilter);
+        spinner = findViewById(R.id.dynamic_spinner);
         DBHelper dbh = new DBHelper(this);
         final ArrayList<Song> songs = dbh.getAllSong();
 
@@ -50,6 +54,30 @@ public class showSong extends AppCompatActivity {
             adapter.notifyDataSetChanged();
             }
         });
+
+          final ArrayList<String> alYear = new ArrayList<String>();
+          for(int i = 0; i<al.size(); i ++){
+              alYear.add(al.get(i).getYear()+"");
+          }
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_item,alYear);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String selected = spinner.getSelectedItem().toString();
+                DBHelper dbh = new DBHelper(showSong.this);
+                al.clear();
+                al.addAll(dbh.getAllSong(selected));
+                dbh.close();
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode,
